@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>积木跳</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #d5e2f2;
+      overflow: hidden;
+      touch-action: none;
+    }
+    #game {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="game"></canvas>
+  <script>
+    (function () {
+      var canvas = document.getElementById('game');
+      var resizeCb = null;
+      var startCb = null;
+      var endCb = null;
+      var cancelCb = null;
+      var hideCb = null;
+      var showCb = null;
+
+      function emit(cb, touches) {
+        if (cb) cb({ touches: touches, changedTouches: touches });
+      }
+
+      function pos(e) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+          clientX: e.clientX - rect.left,
+          clientY: e.clientY - rect.top,
+          identifier: e.pointerId || 1
+        };
+      }
+
+      canvas.addEventListener('pointerdown', function (e) {
+        canvas.setPointerCapture(e.pointerId);
+        emit(startCb, [pos(e)]);
+      });
+      canvas.addEventListener('pointerup', function (e) {
+        emit(endCb, [pos(e)]);
+      });
+      canvas.addEventListener('pointercancel', function (e) {
+        emit(cancelCb, [pos(e)]);
+      });
+      canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+      window.addEventListener('keydown', function (e) {
+        if (e.code === 'Space') e.preventDefault();
+      });
+      window.addEventListener('resize', function () {
+        if (resizeCb) resizeCb();
+      });
+
+      window.wx = {
+        createCanvas: function () { return canvas; },
+        getSystemInfoSync: function () {
+          return {
+            windowWidth: window.innerWidth,
+            windowHeight: window.innerHeight,
+            pixelRatio: window.devicePixelRatio || 1,
+            safeArea: {
+              top: 0,
+              left: 0,
+              right: window.innerWidth,
+              bottom: window.innerHeight
+            }
+          };
+        },
+        getStorageSync: function (key) {
+          try { return localStorage.getItem(key); } catch (e) { return ''; }
+        },
+        setStorageSync: function (key, val) {
+          try { localStorage.setItem(key, String(val)); } catch (e) {}
+        },
+        vibrateShort: function () {},
+        onTouchStart: function (cb) { startCb = cb; },
+        onTouchEnd: function (cb) { endCb = cb; },
+        onTouchCancel: function (cb) { cancelCb = cb; },
+        onHide: function (cb) { hideCb = cb; },
+        onShow: function (cb) { showCb = cb; },
+        onWindowResize: function (cb) { resizeCb = cb; }
+      };
+    })();
+  </script>
+  <script src="game.js"></script>
+</body>
+</html>
