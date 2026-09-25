@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """在 100×100 像素区域内随机落点，并在指定秒数之后再随机等待 1～3 秒点击。
 
-用法:
+用法（在 E:\\code\\yys 目录下）:
     python random_click.py
     python random_click.py 20
     python random_click.py 20 --origin 400 300
